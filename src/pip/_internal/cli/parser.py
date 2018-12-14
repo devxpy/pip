@@ -132,7 +132,9 @@ class CustomOptionParser(optparse.OptionParser):
 class ConfigOptionParser(CustomOptionParser):
     """Custom option parser which updates its defaults by checking the
     configuration files and environmental variables"""
-
+    
+    description_3rd_party = None
+        
     def __init__(self, *args, **kwargs):
         self.name = kwargs.pop('name')
 
@@ -246,6 +248,25 @@ class ConfigOptionParser(CustomOptionParser):
     def error(self, msg):
         self.print_usage(sys.stderr)
         self.exit(UNKNOWN_ERROR, "%s\n" % msg)
+
+    def format_description_3rd_party(self):
+        return "3rd Party Commands:\n" + textwrap.indent(self.description_3rd_party, " " * 2) + "\n"
+
+    def format_help(self, formatter=None):
+        """Custom "help" formatter that shows third-party commands"""
+        if formatter is None:
+            formatter = self.formatter
+        result = []
+        if self.usage:
+            result.append(self.get_usage() + "\n")
+        if self.description:
+            result.append(self.format_description(formatter) + "\n")
+        if self.description_3rd_party:
+            result.append(self.format_description_3rd_party() + "\n")
+
+        result.append(self.format_option_help(formatter))
+        result.append(self.format_epilog(formatter))
+        return "".join(result)
 
 
 def invalid_config_error_message(action, key, val):

@@ -47,6 +47,7 @@ class Command(object):
     usage = None  # type: Optional[str]
     hidden = False  # type: bool
     ignore_require_venv = False  # type: bool
+    summary = None  # type: str
 
     def __init__(self, isolated=False):
         # type: (bool) -> None

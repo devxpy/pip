@@ -11,7 +11,7 @@ from pip._internal.cli.parser import (
 )
 from pip._internal.commands import (
     commands_dict, get_similar_commands, get_summaries,
-)
+    get_summaries_3rd_party)
 from pip._internal.exceptions import CommandError
 from pip._internal.utils.misc import get_prog
 
@@ -50,6 +50,8 @@ def create_main_parser():
     command_summaries = get_summaries()
     description = [''] + ['%-27s %s' % (i, j) for i, j in command_summaries]
     parser.description = '\n'.join(description)
+
+    parser.description_3rd_party = ' '.join(get_summaries_3rd_party())
 
     return parser
 

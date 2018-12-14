@@ -4,24 +4,12 @@ import glob
 import json
 import logging
 import os
-import subprocess
 import sys
-from typing import Generator, TypeVar, List
-
-import pkg_resources
+from typing import TypeVar, List
 
 logger = logging.getLogger(__name__)
 
 THIRD_PARTY_CMD_PREFIX = "pip-"
-
-
-def get_all_console_scripts(package_name):
-    entrypoints = (
-        ep
-        for ep in pkg_resources.iter_entry_points("console_scripts")
-        if ep.module_name.startswith(package_name)
-    )
-    return entrypoints
 
 
 def search_3rd_party_scripts() -> List[str]:
@@ -43,24 +31,28 @@ def make_3rd_party_command(script: str) -> ThirdPartyCommand:
         """
         Represents a third-party pip command.
         """
-
-        name = os.path.basename(script).split(".")[0][len(THIRD_PARTY_CMD_PREFIX) :]
+        name = os.path.basename(script).split(".")[0][len(THIRD_PARTY_CMD_PREFIX):]
         summary = "xyz"
 
-        # for compat with Command.
+        # for compat with `Command`
         def __init__(self, *args, **kwargs):
             pass
 
         @staticmethod
         def main(args):
-            pip_help = dict(json.loads(subprocess.check_output([script, "--pip-help"])))
-
-            modenv = os.environ.copy()
-            modenv["PYTHONPATH"] = os.pathsep.join(
-                (modenv.get("PYTHONPATH", ""), pip_help["pkgpath"])
+            os.execv(
+                script,
+                [
+                    sys.argv[0],
+                    json.dumps(
+                        {
+                            "sys.executable": sys.executable,
+                            "args": args,
+                            "sys.argv": sys.argv,
+                        }
+                    ),
+                ],
             )
-
-            subprocess.run([sys.executable, pip_help["__file__"]] + args, env=modenv)
 
     return ThirdPartyCommand
 

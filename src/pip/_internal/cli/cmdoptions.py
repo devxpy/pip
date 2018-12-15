@@ -735,6 +735,14 @@ require_hashes = partial(
          'requirements file has a --hash option.',
 )  # type: partial[Option]
 
+disable_plugins = partial(
+    Option,
+    '--disable-plugins',
+    dest='disable_plugins',
+    action='store_true',
+    default=False,
+    help='Turn off support for any 3rd-party plugins.'
+)  # type: partial[Option]
 
 ##########
 # groups #
@@ -763,6 +771,7 @@ general_group = {
         no_cache,
         disable_pip_version_check,
         no_color,
+        disable_plugins,
     ]
 }  # type: Dict[str, Any]
 

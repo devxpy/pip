@@ -6,12 +6,14 @@ import sys
 
 from pip import __version__
 from pip._internal.cli import cmdoptions
-from pip._internal.cli.parser import (
-    ConfigOptionParser, UpdatingDefaultsHelpFormatter,
-)
+from pip._internal.cli.parser import ConfigOptionParser, UpdatingDefaultsHelpFormatter
 from pip._internal.commands import (
-    commands_dict, get_similar_commands, get_summaries,
-    get_summaries_3rd_party)
+    commands_dict,
+    get_similar_commands,
+    get_summaries,
+    get_summaries_for_plugins,
+    plugin_commands_dict,
+)
 from pip._internal.exceptions import CommandError
 from pip._internal.utils.misc import get_prog
 
@@ -23,21 +25,21 @@ def create_main_parser():
     """
 
     parser_kw = {
-        'usage': '\n%prog <command> [options]',
-        'add_help_option': False,
-        'formatter': UpdatingDefaultsHelpFormatter(),
-        'name': 'global',
-        'prog': get_prog(),
+        "usage": "\n%prog <command> [options]",
+        "add_help_option": False,
+        "formatter": UpdatingDefaultsHelpFormatter(),
+        "name": "global",
+        "prog": get_prog(),
     }
 
     parser = ConfigOptionParser(**parser_kw)
     parser.disable_interspersed_args()
 
-    pip_pkg_dir = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "..", "..",
-    ))
-    parser.version = 'pip %s from %s (python %s)' % (
-        __version__, pip_pkg_dir, sys.version[:3],
+    pip_pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    parser.version = "pip %s from %s (python %s)" % (
+        __version__,
+        pip_pkg_dir,
+        sys.version[:3],
     )
 
     # add the general options
@@ -48,10 +50,8 @@ def create_main_parser():
 
     # create command listing for description
     command_summaries = get_summaries()
-    description = [''] + ['%-27s %s' % (i, j) for i, j in command_summaries]
-    parser.description = '\n'.join(description)
-
-    parser.description_3rd_party = ' '.join(get_summaries_3rd_party())
+    description = [""] + ["%-27s %s" % (i, j) for i, j in command_summaries]
+    parser.description = "\n".join(description)
 
     return parser
 
@@ -68,6 +68,11 @@ def parse_command(args):
     #  args_else: ['install', '--user', 'INITools']
     general_options, args_else = parser.parse_args(args)
 
+    # --disable-plugins
+    if not general_options.disable_plugins:
+        commands_dict.update(plugin_commands_dict)
+        parser.plugins_description = "\n".join(get_summaries_for_plugins())
+
     # --version
     if general_options.version:
         sys.stdout.write(parser.version)
@@ -75,7 +80,7 @@ def parse_command(args):
         sys.exit()
 
     # pip || pip help -> print_help()
-    if not args_else or (args_else[0] == 'help' and len(args_else) == 1):
+    if not args_else or (args_else[0] == "help" and len(args_else) == 1):
         parser.print_help()
         sys.exit()
 
@@ -89,7 +94,7 @@ def parse_command(args):
         if guess:
             msg.append('maybe you meant "%s"' % guess)
 
-        raise CommandError(' - '.join(msg))
+        raise CommandError(" - ".join(msg))
 
     # all the args without the subcommand
     cmd_args = args[:]

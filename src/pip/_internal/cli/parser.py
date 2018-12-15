@@ -133,7 +133,7 @@ class ConfigOptionParser(CustomOptionParser):
     """Custom option parser which updates its defaults by checking the
     configuration files and environmental variables"""
     
-    description_3rd_party = None
+    plugins_description = None
         
     def __init__(self, *args, **kwargs):
         self.name = kwargs.pop('name')
@@ -249,8 +249,8 @@ class ConfigOptionParser(CustomOptionParser):
         self.print_usage(sys.stderr)
         self.exit(UNKNOWN_ERROR, "%s\n" % msg)
 
-    def format_description_3rd_party(self):
-        return "3rd Party Commands:\n" + textwrap.indent(self.description_3rd_party, " " * 2) + "\n"
+    def format_plugins_description(self):
+        return "3rd Party Commands:\n" + textwrap.indent(self.plugins_description, " " * 2) + "\n"
 
     def format_help(self, formatter=None):
         """Custom "help" formatter that shows third-party commands"""
@@ -261,8 +261,8 @@ class ConfigOptionParser(CustomOptionParser):
             result.append(self.get_usage() + "\n")
         if self.description:
             result.append(self.format_description(formatter) + "\n")
-        if self.description_3rd_party:
-            result.append(self.format_description_3rd_party() + "\n")
+        if self.plugins_description:
+            result.append(self.format_plugins_description() + "\n")
 
         result.append(self.format_option_help(formatter))
         result.append(self.format_epilog(formatter))

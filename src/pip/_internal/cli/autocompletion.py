@@ -6,7 +6,7 @@ import os
 import sys
 
 from pip._internal.cli.main_parser import create_main_parser
-from pip._internal.commands import commands_dict, get_summaries, get_summaries_3rd_party
+from pip._internal.commands import commands_dict, get_summaries, get_summaries_for_plugins
 from pip._internal.utils.misc import get_installed_distributions
 
 
@@ -19,17 +19,17 @@ def get_subcommand(cwords):
     except IndexError:
         pass
 
-    subcommands_3rd_party = get_summaries_3rd_party()
+    plugin_subcommands = get_summaries_for_plugins()
     try:
-        found = [w for w in cwords if w in subcommands_3rd_party][0]
+        found = [w for w in cwords if w in plugin_subcommands][0]
     except IndexError:
         pass
     else:
-        # cannot complete anything for 3rd party commands,
+        # can't really autocomplete for 3rd-party plugins,
         # so might as well exit.
         sys.exit(1)
 
-    return found, subcommands + subcommands_3rd_party
+    return found, subcommands + plugin_subcommands
 
 
 def autocomplete():

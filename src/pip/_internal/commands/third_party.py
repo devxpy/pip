@@ -9,7 +9,7 @@ from typing import TypeVar, List
 
 logger = logging.getLogger(__name__)
 
-THIRD_PARTY_CMD_PREFIX = "pip-"
+THIRD_PARTY_CMD_PREFIX = "pip-plugin-"
 
 
 def search_3rd_party_scripts() -> List[str]:

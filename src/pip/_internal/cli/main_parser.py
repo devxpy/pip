@@ -16,11 +16,17 @@ from pip._internal.commands import (
 )
 from pip._internal.exceptions import CommandError
 from pip._internal.utils.misc import get_prog
+from pip._internal.utils.typing import MYPY_CHECK_RUNNING
+
+if MYPY_CHECK_RUNNING:
+    from typing import Tuple, List  # noqa: F401
+
 
 __all__ = ["create_main_parser", "parse_command"]
 
 
 def create_main_parser():
+    # type: () -> ConfigOptionParser
     """Creates and returns the main parser for pip's CLI
     """
 
@@ -46,7 +52,8 @@ def create_main_parser():
     gen_opts = cmdoptions.make_option_group(cmdoptions.general_group, parser)
     parser.add_option_group(gen_opts)
 
-    parser.main = True  # so the help formatter knows
+    # so the help formatter knows
+    parser.main = True  # type: ignore
 
     # create command listing for description
     command_summaries = get_summaries()
@@ -57,6 +64,7 @@ def create_main_parser():
 
 
 def parse_command(args):
+    # type: (List[str]) -> Tuple[str, List[str]]
     parser = create_main_parser()
 
     # Note: parser calls disable_interspersed_args(), so the result of this
@@ -75,7 +83,7 @@ def parse_command(args):
 
     # --version
     if general_options.version:
-        sys.stdout.write(parser.version)
+        sys.stdout.write(parser.version)  # type: ignore
         sys.stdout.write(os.linesep)
         sys.exit()
 
